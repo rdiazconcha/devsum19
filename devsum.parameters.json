@@ -1,0 +1,24 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "frontEndCpu": {
+        "value": "0.5"
+      },
+      "serviceCpu": {
+        "value": "0.5"
+      },
+      "frontEndMemory":{
+        "value": "1.0"
+      },
+      "serviceMemory":{
+        "value": "1.0"
+      },
+      "frontEndReplicaCount":{
+        "value": "1"
+      },
+      "serviceReplicaCount":{
+        "value": "1"
+      }
+    }
+  }

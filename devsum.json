@@ -1,0 +1,298 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "location": {
+        "defaultValue": "[resourceGroup().location]",
+        "type": "String",
+        "metadata": {
+          "description": "Location of the resources."
+        }
+      },
+      "frontEndCpu": {
+        "defaultValue": "0.5",
+        "type": "string",
+        "metadata": {
+            "description": "The CPU resources for the front end web service."
+        }
+      },
+      "serviceCpu": {
+        "defaultValue": "0.5",
+        "type": "string",
+        "metadata": {
+            "description": "The CPU resources for the back end service."
+        }
+      },
+      "frontEndMemory":{
+        "defaultValue": "1.0",
+        "type": "string",
+        "metadata": {
+            "description": "The memory in GB for the front end web service."
+        }
+      },
+      "serviceMemory":{
+        "defaultValue": "1.0",
+        "type": "string",
+        "metadata": {
+            "description": "The memory in GB for the back end service."
+        }
+      },
+      "frontEndReplicaCount":{
+        "defaultValue": "1",
+        "type": "string",
+        "metadata": {
+            "description": "The number of service replicas for the front end web service."
+        }
+      },
+      "serviceReplicaCount":{
+        "defaultValue": "1",
+        "type": "string",
+        "metadata": {
+            "description": "The number of service replicas for the back end service."
+        }
+      }
+    },
+    "resources": [
+      {
+        "apiVersion": "2018-09-01-preview",
+        "name": "devsumapi",
+        "type": "Microsoft.ServiceFabricMesh/applications",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "Microsoft.ServiceFabricMesh/networks/devsumapiNetwork"
+        ],
+        "properties": {
+          "services": [
+            {
+              "name": "devsumapi-search",
+              "properties": {
+                "description": "Search API",
+                "osType": "linux",
+                "codePackages": [
+                  {
+                    "name": "devsumapi-search",
+                    "image": "rdiazconcha/lilsearch:latest",
+                    "endpoints": [
+                      {
+                        "name": "SearchListener",
+                        "port": 80
+                      }
+                    ],
+                    "environmentVariables": [
+                      {
+                        "name": "ASPNETCORE_URLS",
+                        "value": "http://+:80"
+                      },
+                      {
+                        "name": "Services__Customers",
+                        "value": "http://devsumapi-customers"
+                      },
+                      {
+                        "name": "Services__Products",
+                        "value": "http://devsumapi-products"
+                      },
+                      {
+                        "name": "Services__Sales",
+                        "value": "http://devsumapi-sales"
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "[parameters('frontEndCpu')]",
+                        "memoryInGB": "[parameters('frontEndMemory')]"
+                      }
+                    }
+                  }
+                ],
+                "replicaCount": "[parameters('frontEndReplicaCount')]",
+                "networkRefs": [
+                  {
+                    "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'devsumapiNetwork')]",
+                    "endpointRefs": [
+                      {
+                        "name": "SearchListener"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "devsumapi-products",
+              "properties": {
+                "description": "Products API",
+                "osType": "linux",
+                "codePackages": [
+                  {
+                    "name": "devsumapi-products",
+                    "image": "rdiazconcha/lilproducts:latest",
+                    "endpoints": [
+                      {
+                        "name": "ProductsListener",
+                        "port": 80
+                      }
+                    ],
+                    "environmentVariables": [
+                      {
+                        "name": "ASPNETCORE_URLS",
+                        "value": "http://+:80"
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "[parameters('serviceCpu')]",
+                        "memoryInGB": "[parameters('serviceMemory')]"
+                      }
+                    }
+                  }
+                ],
+                "replicaCount": "[parameters('serviceReplicaCount')]",
+                "networkRefs": [
+                  {
+                    "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'devsumapiNetwork')]",
+                    "endpointRefs": [
+                      {
+                        "name": "ProductsListener"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "devsumapi-customers",
+              "properties": {
+                "description": "Customers API",
+                "osType": "linux",
+                "codePackages": [
+                  {
+                    "name": "devsumapi-customers",
+                    "image": "rdiazconcha/lilcustomers:latest",
+                    "endpoints": [
+                      {
+                        "name": "CustomersListener",
+                        "port": 80
+                      }
+                    ],
+                    "environmentVariables": [
+                      {
+                        "name": "ASPNETCORE_URLS",
+                        "value": "http://+:80"
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "[parameters('serviceCpu')]",
+                        "memoryInGB": "[parameters('serviceMemory')]"
+                      }
+                    }
+                  }
+                ],
+                "replicaCount": "[parameters('serviceReplicaCount')]",
+                "networkRefs": [
+                  {
+                    "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'devsumapiNetwork')]",
+                    "endpointRefs": [
+                      {
+                        "name": "CustomersListener"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "devsumapi-sales",
+              "properties": {
+                "description": "Sales API",
+                "osType": "linux",
+                "codePackages": [
+                  {
+                    "name": "devsumapi-sales",
+                    "image": "rdiazconcha/lilsales:latest",
+                    "endpoints": [
+                      {
+                        "name": "SalesListener",
+                        "port": 80
+                      }
+                    ],
+                    "environmentVariables": [
+                      {
+                        "name": "ASPNETCORE_URLS",
+                        "value": "http://+:80"
+                      }
+                    ],
+                    "resources": {
+                      "requests": {
+                        "cpu": "[parameters('serviceCpu')]",
+                        "memoryInGB": "[parameters('serviceMemory')]"
+                      }
+                    }
+                  }
+                ],
+                "replicaCount": "[parameters('serviceReplicaCount')]",
+                "networkRefs": [
+                  {
+                    "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'devsumapiNetwork')]",
+                    "endpointRefs": [
+                      {
+                        "name": "SalesListener"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "description": "devsumapi description."
+        }
+      },
+      {
+        "apiVersion": "2018-09-01-preview",
+        "name": "devsumapiNetwork",
+        "type": "Microsoft.ServiceFabricMesh/networks",
+        "location": "[parameters('location')]",
+        "dependsOn": [],
+        "properties": {
+          "kind": "Local",
+          "description": "Service Fabric Mesh Network for devsumapi sample.",
+          "networkAddressPrefix": "10.0.0.0/24"
+        }
+      },
+      {
+        "apiVersion": "2018-09-01-preview",
+        "name": "devsumapiGateway",
+        "type": "Microsoft.ServiceFabricMesh/gateways",
+        "location": "[parameters('location')]",
+        "dependsOn": [
+          "Microsoft.ServiceFabricMesh/networks/devsumapiNetwork"
+        ],
+        "properties": {
+          "description": "Service Fabric Mesh Gateway for devsumapi sample",
+          "sourceNetwork": {
+            "name": "Open"
+          },
+          "destinationNetwork": {
+            "name": "[resourceId('Microsoft.ServiceFabricMesh/networks', 'devsumapiNetwork')]"
+          },
+          "tcp": [
+            {
+              "name": "web",
+              "port": 80,
+              "destination": {
+                "applicationName": "devsumapi",
+                "serviceName": "devsumapi-search",
+                "endpointName": "SearchListener"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "outputs": {
+      "publicIPAddress": {
+        "value": "[reference('devsumapiGateway').ipAddress]",
+        "type": "string"
+      }
+    }
+  }
