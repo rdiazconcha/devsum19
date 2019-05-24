@@ -14,6 +14,8 @@ Just run **docker build .** in the folder with the Dockerfile file in order to c
 - rdiazconcha/lilproducts
 - rdiazconcha/lilsales
 
+The container images are based in the [Azure: Microservicios esencial training course solution files.](https://github.com/rdiazconcha/lil-azure-microservicios)
+
 ARM template files in JSON format.
 
 To run, execute **az mesh deployment create** with the proper parameters as follows:
