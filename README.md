@@ -2,12 +2,12 @@
 ## DevSum19 - Serverless Microservices with Azure Service Fabric Mesh
 
 ### Demo 1
-#### Web site containerization
+#### Web site containerization (devsumweb)
 
 Just run **docker build .** in the folder with the Dockerfile file in order to create the Docker container image in your own machine.  Then, you can push it to your own registry or just use rdiazconcha/devsum19
 
 ### Demo 2
-#### .NET Core API microservices
+#### .NET Core API microservices (devsumapi)
 ##### Based on the following images:
 - rdiazconcha/lilsearch
 - rdiazconcha/lilcustomers
